@@ -19,7 +19,7 @@ class QuantumState:
         Sets the quantum state using a physical wavefunction.
         The wavefunction is converted to a state vector representation.
         """
-        self.state_vector = torch.tensor(wavefunction, dtype=torch.complex64)
+        self.state_vector = torch.tensor(wavefunction, dtype=torch.complex64, requires_grad=True)
         self.density_matrix = torch.outer(self.state_vector, self.state_vector.conj())
         print(f"[QuantumState] Wavefunction set to: {self.state_vector}")
 

@@ -15,7 +15,7 @@ simulator.initialize()
 
 # Initialize quantum state for two hydrogen ions
 quantum_state = QuantumState(num_ions=2)
-initial_state = torch.tensor([1.0, 0.0, 0.0, 0.0])  # Placeholder for initial state
+initial_state = torch.tensor([1.0, 0.0, 0.0, 0.0], dtype=torch.complex64, requires_grad=True)
 quantum_state.set_initial_state(initial_state)
 
 # Apply Coulomb interaction model
@@ -29,9 +29,9 @@ quantum_operations.apply_phase_shift(quantum_state, angle=3.1415 / 4)
 quantum_operations.apply_entanglement(quantum_state, target_indices=(0, 1))
 
 # Apply quantum algorithms
-quantum_algorithms = QuantumAlgorithms()
-quantum_algorithms.apply_vqe(quantum_state)
-quantum_algorithms.apply_qaoa(quantum_state)
+quantum_algorithms = QuantumAlgorithms(quantum_state, coulomb_model)
+quantum_algorithms.apply_vqe(max_iterations=100)
+quantum_algorithms.apply_qaoa(max_iterations=100)
 
 # Measurement and analysis
 measurement_tools = MeasurementTools()

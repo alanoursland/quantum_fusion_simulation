@@ -9,8 +9,11 @@ class MeasurementTools:
         state_vector = quantum_state.state_vector
         probabilities = torch.abs(state_vector) ** 2
 
+        # Normalize probabilities to ensure they sum to 1
+        probabilities = probabilities / probabilities.sum()
+
         # Sample the quantum state based on probabilities
-        samples = np.random.choice(len(probabilities), size=num_samples, p=probabilities.numpy())
+        samples = np.random.choice(len(probabilities), size=num_samples, p=probabilities.detach().numpy())
         measurement_counts = dict(zip(*np.unique(samples, return_counts=True)))
         measurement_data = {
             "state_vector": state_vector,
@@ -20,7 +23,7 @@ class MeasurementTools:
         print(f"[MeasurementTools] Measurement data: {measurement_data}")
         return measurement_data
 
-    def analyze_results(self, measurement_data: Dict[str, Any]) -> Dict[str, float]:
+    def analyze_results(self, measurement_data: Dict[str, Any]) -> Dict[str, Any]:
         print("[MeasurementTools] Analyzing measurement data with fusion probability estimation.")
         measurement_counts = measurement_data["measurement_counts"]
 
@@ -29,10 +32,13 @@ class MeasurementTools:
         fusion_state = max(measurement_counts, key=measurement_counts.get, default=0)
         fusion_probability = measurement_counts.get(fusion_state, 0) / total_measurements
 
-        # Advanced analysis could include statistical confidence intervals, etc.
+        # Include the full measurement data along with the analysis
         analysis_results = {
             "fusion_probability": fusion_probability,
-            "fusion_state": fusion_state
+            "fusion_state": fusion_state,
+            "state_vector": measurement_data["state_vector"],
+            "probabilities": measurement_data["probabilities"],
+            "measurement_counts": measurement_counts
         }
         print(f"[MeasurementTools] Analysis results: {analysis_results}")
         return analysis_results

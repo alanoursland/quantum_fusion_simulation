@@ -2,8 +2,11 @@ import torch
 from quantum_state import QuantumState
 import numpy as np
 
+elementary_charge = 1.602e-19
+one_nanometer = 1e-10
+
 class CoulombModel:
-    def __init__(self, quantum_state: QuantumState, ion_charge: float = 1.0, interaction_distance: float = 1.0, external_potential: float = 0.0) -> None:
+    def __init__(self, quantum_state: QuantumState, ion_charge: float = elementary_charge, interaction_distance: float = one_nanometer, external_potential: float = 0.0) -> None:
         self.quantum_state = quantum_state
         self.ion_charge = ion_charge
         self.interaction_distance = interaction_distance
@@ -15,10 +18,11 @@ class CoulombModel:
         k = 8.9875517923e9  # Coulomb's constant in N·m²/C²
         potential_energy = k * (self.ion_charge ** 2) / self.interaction_distance
         potential_energy += self.external_potential
+        # potential_energy = min(potential_energy, 100)  # Cap the potential energy
         print(f"[CoulombModel] Calculated potential energy: {potential_energy}")
 
         # Update the quantum state with the potential energy
-        self.quantum_state.state_vector *= torch.exp(-torch.tensor([potential_energy], dtype=torch.complex64))
+        self.quantum_state.state_vector = self.quantum_state.state_vector * torch.exp(-torch.tensor([potential_energy], dtype=torch.complex64))
         print(f"[CoulombModel] State vector after applying Coulomb interaction: {self.quantum_state.state_vector}")
 
     def simulate_quantum_tunneling(self, barrier_width: float, barrier_height: float) -> None:
@@ -31,5 +35,5 @@ class CoulombModel:
         tunneling_probability = np.exp(-2 * kappa * barrier_width)
 
         print(f"[CoulombModel] Calculated tunneling probability: {tunneling_probability}")
-        self.quantum_state.state_vector *= torch.tensor(tunneling_probability, dtype=torch.complex64)
+        self.quantum_state.state_vector = self.quantum_state.state_vector * torch.tensor(tunneling_probability, dtype=torch.complex64)
         print(f"[CoulombModel] State vector after quantum tunneling simulation: {self.quantum_state.state_vector}")
