@@ -11,7 +11,7 @@ class DataHandler:
 
         # Convert non-serializable objects to serializable formats
         def convert_to_serializable(obj):
-            print(f"Converting {obj} {type(obj)}")
+            # print(f"Converting {obj} {type(obj)}")
             
             if isinstance(obj, torch.Tensor):
                 # Convert tensors to lists and handle complex numbers if present

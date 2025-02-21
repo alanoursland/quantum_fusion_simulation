@@ -18,7 +18,7 @@ class SimulationRunner:
 
     def run_adaptive_simulation(self, iterations: int, adaptive: bool, stopping_threshold: float) -> None:
         for i in range(iterations):
-            print(f"[SimulationRunner] Iteration {i+1}/{iterations}")
+            # print(f"[SimulationRunner] Iteration {i+1}/{iterations}")
             if adaptive:
                 self.adapt_simulation_parameters()
             if stopping_threshold and self.check_stopping_condition(stopping_threshold):

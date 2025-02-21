@@ -45,10 +45,17 @@ class QuantumAlgorithms:
         
         print("[QuantumAlgorithms] QAOA optimization completed.")
 
-    def apply_custom_algorithm(self) -> None:
-        print("[QuantumAlgorithms] Applying custom quantum algorithm.")
-        self.coulomb_model.simulate_quantum_tunneling(barrier_width=1.0, barrier_height=10.0)
-        self.quantum_state.state_vector = torch.nn.Parameter(
-            self.quantum_state.state_vector.detach() * torch.tensor(1.1, dtype=torch.complex64), requires_grad=True
-        )
-        print(f"[Custom Algorithm] State vector: {self.quantum_state.state_vector}")
+    def apply_custom_algorithm(self, r_initial=1e-14, energy=1.6e-15, max_iterations=100) -> None:
+        print("[QuantumAlgorithms] Applying custom quantum algorithm with tunneling.")
+        self.coulomb_model.simulate_quantum_tunneling(r_initial=r_initial, energy=energy)
+        state_vector = torch.nn.Parameter(self.quantum_state.state_vector.clone().detach(), requires_grad=True)
+        optimizer = torch.optim.Adam([state_vector], lr=0.01)
+        for iteration in range(max_iterations):
+            optimizer.zero_grad()
+            self.quantum_state.state_vector.copy_(state_vector)  # Sync it
+            self.coulomb_model.apply_coulomb_interaction()
+            cost = -torch.real(state_vector[0] * torch.conj(state_vector[0]))
+            cost.backward()
+            optimizer.step()
+            print(f"[Custom Algorithm] Iteration {iteration}, Cost: {cost.item()}")
+        self.quantum_state.state_vector.copy_(state_vector)
